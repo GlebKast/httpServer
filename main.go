@@ -1,17 +1,14 @@
-package httpServer
+package main
 
 import (
-	"fmt"
 	"github.com/labstack/echo"
-	"log"
 	"net/http"
-
 )
 
-func main(){
+func main() {
 	e := echo.New()
-	err := e.Start(fmt.Sprintf(":%d", 8080))
-	if err != nil{
-		log.Fatal(err)
-	}
+	e.GET("/", func(c echo.Context) error {
+		return c.String(http.StatusOK, "Hello, World!")
+	})
+	e.Logger.Fatal(e.Start(":8080"))
 }
