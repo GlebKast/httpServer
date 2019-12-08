@@ -77,3 +77,25 @@ func (u BikeHandler) DeleteBike(c echo.Context) error {
 	}
 	return c.String(http.StatusOK, "Deleted: "+bikeManufacturer+" "+bikeModel+"; size: "+bikeSize+"; quantity: "+bikeQuantity+".")
 }
+
+func (u BikeHandler) AddDescription(c echo.Context) error {
+	bikeManufacturer := c.QueryParam("manufacturer")
+	bikeModel := c.QueryParam("model")
+	bikeDescription := c.QueryParam("description")
+	t := &Bike.BikeDescription{Manufacturer: bikeManufacturer, Model: bikeModel, Description: bikeDescription}
+	err := u.rep.NewDescription(t)
+	if err == false {
+		return c.String(http.StatusOK, "Description for this model already exists")
+	}
+	return c.String(http.StatusOK, "Added description to: "+t.Manufacturer+" "+t.Model)
+}
+
+func (u BikeHandler) GetDescription(c echo.Context) error {
+	bikeManufacturer := c.QueryParam("manufacturer")
+	bikeModel := c.QueryParam("model")
+	res, err := u.rep.GetDescription(bikeManufacturer, bikeModel)
+	if err != nil {
+		return err
+	}
+	return c.String(http.StatusOK, "Description of "+bikeManufacturer+" "+bikeModel+": "+res)
+}

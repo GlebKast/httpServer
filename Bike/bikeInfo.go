@@ -11,6 +11,13 @@ type BikeItem struct {
 	Quantity     int
 }
 
+type BikeDescription struct {
+	Id           int
+	Manufacturer string
+	Model        string
+	Description  string
+}
+
 func ShowBikeInfo(it BikeItem) {
 	fmt.Print(it.Manufacturer + " " + it.Model + " ")
 	fmt.Print(it.Price)

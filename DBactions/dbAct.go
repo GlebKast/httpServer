@@ -11,6 +11,8 @@ type DBactions interface {
 	Add(p *Bike.BikeItem) error
 	Get(manufacturer string, model string) ([]Bike.BikeItem, error)
 	Del(manufacturer string, model string, size int, quantity int) error
+	NewDescription(p *Bike.BikeDescription) bool
+	GetDescription(manufacturer string, model string) (string, error)
 	ShowAll() error
 }
 
@@ -85,6 +87,26 @@ func (d DBAct) ShowAll() error {
 	return nil
 }
 
+func (d DBAct) NewDescription(p *Bike.BikeDescription) bool {
+	res := d.db.QueryRow("select * from bikeDescriptions where manufacturer = $1 and model = $2;", p.Manufacturer, p.Model)
+	err := res.Scan(&p.Id, &p.Manufacturer, &p.Model, &p.Description)
+	if err != nil {
+		_, err = d.db.Exec("insert into bikeDescriptions (manufacturer, model, description) values ($1, $2, $3);", p.Manufacturer, p.Model, p.Description)
+		return true
+	}
+	return false
+}
+
+func (d DBAct) GetDescription(manufacturer string, model string) (string, error) {
+	res := d.db.QueryRow("select * from bikeDescriptions where manufacturer = $1 and model = $2;", manufacturer, model)
+	t := Bike.BikeDescription{}
+	if res != nil {
+		err := res.Scan(&t.Id, &t.Manufacturer, &t.Model, &t.Description)
+		return t.Description, err
+	}
+	return "Sorry. No description available", nil
+}
+
 func NewBikesDB() (DBactions, error) {
 	db, err := sql.Open("sqlite3", "bikes.db")
 	if err != nil {
@@ -99,10 +121,16 @@ func NewBikesDB() (DBactions, error) {
 	if err != nil {
 		return nil, err
 	}
+	_, err = db.Exec(`CREATE TABLE if not exists bikeDescriptions (id    INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE,
+		manufacturer  TEXT NOT NULL,
+		model TEXT NOT NULL,
+		description TEXT NOT NULL)`)
+	if err != nil {
+		return nil, err
+	}
 	err = db.QueryRow("SELECT COUNT(*) FROM allBikes").Scan(&count)
 	if err != nil {
 		log.Fatal(err)
 	}
-
 	return &DBAct{db: db}, nil
 }

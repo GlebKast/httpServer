@@ -20,5 +20,7 @@ func main() {
 	e.GET("/Add", bh.AddBike)
 	e.GET("/Get", bh.GetBike)
 	e.GET("/Del", bh.DeleteBike)
+	e.GET("/AddDescription", bh.AddDescription)
+	e.GET("/GetDescription", bh.GetDescription)
 	e.Logger.Fatal(e.Start(":8080"))
 }
